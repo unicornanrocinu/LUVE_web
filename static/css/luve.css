@@ -14,3 +14,13 @@
 .title.is-3 {
     font-size: 2rem;
 }
+
+.compare-row {
+    display: flex;
+    /* gap: 16px; */
+}
+
+.compare-row img {
+    width: 33.33%;
+    height: auto;
+}

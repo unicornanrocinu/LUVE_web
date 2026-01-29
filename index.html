@@ -50,30 +50,36 @@
               Dual Frequency Experts</h1>
             <div class="is-size-5 publication-authors">
               <span class="author-block">
-                Chen Zhao
+                <a href="https://scholar.google.com/citations?user=Uhp3JKgAAAAJ&hl=zh-CN">Chen Zhao</a>
+                <sup>1,2*</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://github.com/unicornanrocinu">Jiawei Chen</a>
                 <sup>1*</sup>,
               </span>
               <span class="author-block">
-                Jiawei Chen
-                <sup>1*</sup>,
+                <a href="https://scholar.google.com/citations?user=PccL82sAAAAJ&hl=zh-CN&oi=sra">Hongyu Li</a>
+                <sup>2</sup>,
               </span>
               <span class="author-block">
-                Hongyu Li,
+                <a href="https://scholar.google.com/citations?hl=zh-CN&user=W1ZXjMkAAAAJ">Zhuoliang Kang</a>
+                <sup>2‡</sup>,
               </span>
               <span class="author-block">
-                Zhuoliang Kang,
+                <a href="https://scholar.google.com/citations?hl=zh-CN&user=gAG9WLYAAAAJ">Shilin Lu</a>
+                <sup>3</sup>,
               </span>
               <span class="author-block">
-                Shilin Lu,
+                <a href="https://scholar.google.com/citations?hl=zh-CN&user=JXV5yrZxj5MC">Xiaoming Wei</a>
+                <sup>2</sup>,
               </span>
               <span class="author-block">
-                Xiaoming Wei,
+                <a href="https://cszn.github.io/">Kai Zhang</a>
+                <sup>1</sup>,
               </span>
               <span class="author-block">
-                Kai Zhang,
-              </span>
-              <span class="author-block">
-                Jian Yang,
+                <a href="https://scholar.google.com.hk/citations?user=6CIDtZQAAAAJ&hl=en">Jian Yang</a>
+                <sup>1</sup>,
               </span>
               <span class="author-block">
                 <a href="https://tyshiwo.github.io/">Ying Tai</a>
@@ -83,12 +89,14 @@
 
             <div class="is-size-5 publication-authors">
               <span class="author-block"><sup>1</sup>Nanjing University,</span>
-              <span class="author-block"><sup>2</sup>TODO</span>
+              <span class="author-block"><sup>2</sup>Meituan,</span>
+              <span class="author-block"><sup>3</sup>Nanyang Technological University</span>
             </div>
 
             <div class="is-size-6 publication-authors">
               <span class="author-block"><sup>*</sup>Equal contribution, </span>
-              <span class="author-block"><sup>†</sup> Corresponding author</span>
+              <span class="author-block"><sup>†</sup> Corresponding author, </span>
+              <span class="author-block"><sup>‡</sup> Project leader</span>
             </div>
 
             <div class="column has-text-centered">
@@ -168,7 +176,7 @@
         <div class="column">
           <div class="content has-text-justified">
             <div class="column">
-              <img src="./static/images/headx4.jpg">
+              <img src="./static/images/page.jpg">
             </div>
           </div>
         </div>
@@ -207,24 +215,32 @@
 
   <section class="section">
     <div class="container is-max-desktop">
+      <!-- Challenge. -->
+      <div class="columns is-centered has-text-centered">
+        <!-- <div class="column is-four-fifths"> -->
+        <div class="column">
+          <h2 class="title is-3">Challenge</h2>
+          <div class="content has-text-justified">
+            <div class="column">
+              <img src="./static/images/challenge.jpg">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Challenge. -->
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
       <!-- Method. -->
       <div class="columns is-centered has-text-centered">
         <!-- <div class="column is-four-fifths"> -->
         <div class="column">
           <h2 class="title is-3">Method</h2>
           <div class="content has-text-justified">
-            <p>
-              LUVE integrates three collaborative stages: <b>low-resolution motion generation (LMG)</b>, <b>video latent
-                upsampling (VLU)</b>, and <b>high-resolution content refinement (HCR)</b>.
-              In the first stage, LMG leverages pretrained T2V model to generate motion-consistent low-resolution video
-              latents, establishing reliable motion priors for high-resolution synthesis. VLU then performs direct
-              upsampling within the latent space via our proposed video latent upsampler, effectively eliminating the
-              considerable memory and computational burden of conventional VAE codecs. Finally, HCR employs our dual
-              frequency experts, where the low-frequency expert enhances semantic coherence while the high-frequency
-              expert refines textures and details.
-            </p>
             <div class="column">
-              <img src="./static/images/LacDFExxxx.jpg">
+              <img src="./static/images/method.jpg">
             </div>
           </div>
         </div>
@@ -233,60 +249,20 @@
     </div>
   </section>
 
-  <section class="hero">
-    <div class="hero-body">
-
+  <section class="section">
+    <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <!-- <div class="column"> -->
+        <div class="column">
           <h2 class="title is-3">Comparison with SOTA</h2>
-          <div class="title is-4">
-            <p>
-              Quantitative Comparison
-            </p>
-            <div class="column">
-              <img src="./static/images/compare_result.jpg">
+          <div class="content has-text-justified">
+            <div class="compare-row">
+              <img src="./static/images/compare1.jpg">
+              <img src="./static/images/compare2.jpg">
+              <img src="./static/images/compare3.jpg">
             </div>
           </div>
-
-          <div class="title is-4">
-            <p>
-              Qualitative Comparison
-            </p>
-            <div class="column">
-              <img src="./static/images/t2bcomp.jpg">
-            </div>
-          </div>
-
-          <!-- <div class="title is-4">
-          <p>
-            VideoLQ
-          </p>
-        </div> -->
-          <style>
-            .card-img {
-              border: 2px solid #c1bfbf;
-              border-radius: 8px;
-              padding: 2px;
-              display: inline-block;
-              transition: transform 0.3s ease-in-out;
-              transform-origin: center center;
-            }
-
-            .card-img:active {
-              transform: scale(1.2);
-            }
-          </style>
-
-          <style>
-            .hidden {
-              display: none;
-            }
-          </style>
-
         </div>
       </div>
-    </div>
     </div>
   </section>
 
