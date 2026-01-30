@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <link rel="stylesheet" href="./static/css/luve.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -162,8 +163,8 @@
           <span class="b">Demo</span>
         </h2>
         <div class="publication-video">
-          <iframe src="./static/videos/demo_LUVE.mp4" frameborder="0" allow="autoplay; encrypted-media"
-            allowfullscreen=""></iframe>
+          <video src="./static/videos/demo_LUVE.mp4" poster="./static/images/demo_LUVE.jpg" controls
+            playsinline></video>
         </div>
       </div>
     </div>
@@ -266,6 +267,125 @@
     </div>
   </section>
 
+  <section class="video-showcase">
+    <div class="container">
+      <h2 class="section-title">2K Visual Results</h2>
+      <!-- Swiper 主容器 -->
+      <div class="swiper VideoSwiper">
+        <div class="swiper-wrapper">
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/2k1.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/2k1.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/2k2.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/2k2.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/2k3.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/2k3.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/2k4.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/2k4.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/2k5.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/2k5.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/2k6.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/2k6.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="video-showcase">
+    <div class="container">
+      <h2 class="section-title">4K Visual Results</h2>
+      <!-- Swiper 主容器 -->
+      <div class="swiper VideoSwiper">
+        <div class="swiper-wrapper">
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/4k1.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/4k1.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/4k2.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/4k2.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/4k3.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/4k3.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/4k4.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/4k4.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="swiper-slide">
+            <div class="video-wrapper">
+              <video poster="./static/images/4k5.jpg" autoplay muted loop playsinline>
+                <source src="./static/videos/4k5.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </section>
 
   <section class="section" id="BibTeX">
     <div class="container is-max-desktop content">
@@ -301,6 +421,43 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    // 获取页面上所有的 .VideoSwiper 容器
+    var swiperContainers = document.querySelectorAll(".VideoSwiper");
+
+    swiperContainers.forEach(function (container) {
+      new Swiper(container, {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        centeredSlides: true,
+        loop: true,
+        slidesPerGroup: 1,
+
+        autoplay: {
+          delay: 5000,
+          disableOnInteraction: false,
+        },
+
+        pagination: {
+          el: container.querySelector(".swiper-pagination"),
+          clickable: true,
+        },
+        navigation: {
+          nextEl: container.querySelector(".swiper-button-next"),
+          prevEl: container.querySelector(".swiper-button-prev"),
+        },
+
+        // 响应式断点
+        breakpoints: {
+          768: {
+            slidesPerView: 1.5,
+            spaceBetween: 40,
+          }
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>

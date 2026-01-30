@@ -11,16 +11,61 @@
 }
 
 
-.title.is-3 {
-    font-size: 2rem;
-}
-
 .compare-row {
     display: flex;
-    /* gap: 16px; */
+    gap: 16px;
 }
 
 .compare-row img {
     width: 33.33%;
     height: auto;
+}
+
+
+/* 容器基本样式 */
+.video-showcase {
+    padding: 50px 0;
+    background-color: #f5f5f5;
+    /* 浅灰背景 */
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.swiper {
+    width: 100%;
+    padding-bottom: 50px;
+}
+
+.swiper-slide {
+    text-align: center;
+}
+
+/* 视频容器样式 */
+.video-wrapper {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background: #000;
+}
+
+video {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+/* 自定义导航按钮颜色 (可选) */
+.swiper-button-next,
+.swiper-button-prev {
+    color: #ffffff;
+}
+
+.swiper-pagination-bullet-active {
+    background: #333;
 }
