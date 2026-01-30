@@ -5,9 +5,9 @@
 
 #spotlight-video:hover {
     background-color: #000;
-    padding: 150px 0 250px;
+    padding: 150px 0 150px;
     transform: scale(1.1);
-    margin: 0 0 3rem;
+    margin: 0 0 2rem;
 }
 
 

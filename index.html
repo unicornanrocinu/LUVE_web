@@ -8,21 +8,6 @@
   <meta name="keywords" content="LUVE, Video Generation, Ultra-High-Resolution, Diffusion Models, Latent Cascading">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LUVE : Latent-Cascaded Ultra-High-Resolution Video Generation with Dual Frequency Experts</title>
-
-  <!-- Global site tag (gtag.js) - Google Analytics
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-
-    function gtag() {
-      dataLayer.push(arguments);
-    }
-
-    gtag('js', new Date());
-
-    gtag('config', 'G-PYVRSFMDRL');
-  </script> -->
-
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
 
   <link rel="stylesheet" href="./static/css/bulma.min.css">
@@ -39,387 +24,520 @@
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+
+  <style>
+    /* === 核心样式设置 === */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      /* 隐藏系统默认滚动条，由 Lenis 接管，视觉更高级 */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* 1. 封面区域 */
+    #cover-section {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      /* 绝对占满一屏 */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    #bg-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 0;
+    }
+
+    .cover-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .cover-title {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 5rem;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    /* 2. 正文区域 */
+    #main-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      /* 保证正文至少也是一屏 */
+      background: white;
+      padding-top: 50px;
+    }
+
+    /* 简单的箭头动画 */
+    .scroll-hint {
+      position: absolute;
+      bottom: 30px;
+      z-index: 2;
+      animation: bounce 2s infinite;
+      cursor: pointer;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <section class="hero">
-    <div class="hero-body">
-      <div class="container is-max-desktop">
-        <div class="columns is-centered">
-          <div class="column has-text-centered">
-            <h1 class="title is-1 publication-title">LUVE : Latent-Cascaded Ultra-High-Resolution Video Generation with
-              Dual Frequency Experts</h1>
-            <div class="is-size-5 publication-authors">
-              <span class="author-block">
-                <a href="https://scholar.google.com/citations?user=Uhp3JKgAAAAJ&hl=zh-CN">Chen Zhao</a>
-                <sup>1,2*</sup>,
-              </span>
-              <span class="author-block">
-                <a href="https://github.com/unicornanrocinu">Jiawei Chen</a>
-                <sup>1*</sup>,
-              </span>
-              <span class="author-block">
-                <a href="https://scholar.google.com/citations?user=PccL82sAAAAJ&hl=zh-CN&oi=sra">Hongyu Li</a>
-                <sup>2</sup>,
-              </span>
-              <span class="author-block">
-                <a href="https://scholar.google.com/citations?hl=zh-CN&user=W1ZXjMkAAAAJ">Zhuoliang Kang</a>
-                <sup>2‡</sup>,
-              </span>
-              <span class="author-block">
-                <a href="https://scholar.google.com/citations?hl=zh-CN&user=gAG9WLYAAAAJ">Shilin Lu</a>
-                <sup>3</sup>,
-              </span>
-              <span class="author-block">
-                <a href="https://scholar.google.com/citations?hl=zh-CN&user=JXV5yrZxj5MC">Xiaoming Wei</a>
-                <sup>2</sup>,
-              </span>
-              <span class="author-block">
-                <a href="https://cszn.github.io/">Kai Zhang</a>
-                <sup>1</sup>,
-              </span>
-              <span class="author-block">
-                <a href="https://scholar.google.com.hk/citations?user=6CIDtZQAAAAJ&hl=en">Jian Yang</a>
-                <sup>1</sup>,
-              </span>
-              <span class="author-block">
-                <a href="https://tyshiwo.github.io/">Ying Tai</a>
-                <sup>1†</sup>
-              </span>
-            </div>
 
-            <div class="is-size-5 publication-authors">
-              <span class="author-block"><sup>1</sup>Nanjing University,</span>
-              <span class="author-block"><sup>2</sup>Meituan,</span>
-              <span class="author-block"><sup>3</sup>Nanyang Technological University</span>
-            </div>
+  <!-- === 封面 === -->
+  <section id="cover-section">
+    <video id="bg-video" autoplay muted loop playsinline>
+      <!-- 替换你的视频路径 -->
+      <source src="./static/videos/demo_LUVE.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
 
-            <div class="is-size-6 publication-authors">
-              <span class="author-block"><sup>*</sup>Equal contribution, </span>
-              <span class="author-block"><sup>†</sup> Corresponding author, </span>
-              <span class="author-block"><sup>‡</sup> Project leader</span>
-            </div>
+    <div class="cover-content">
+      <h1 class="cover-title">LUVE</h1>
+      <p style="font-size: 1.5rem; margin-top: 10px;">Latent-Cascaded Ultra-High-Resolution Video Generation with Dual
+        Frequency Experts</p>
+    </div>
 
+    <!-- 点击箭头也可以触发下滑 -->
+    <div class="scroll-hint" onclick="scrollToMain()">
+      <i class="fas fa-chevron-down fa-3x" style="color: white;"></i>
+    </div>
+  </section>
+
+  <div id="main-wrapper">
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container is-max-desktop">
+          <div class="columns is-centered">
             <div class="column has-text-centered">
-              <div class="publication-links">
-                <!-- PDF Link. -->
-                <span class="link-block">
-                  <a href="TODO" class="external-link button is-normal is-rounded is-dark">
-                    <span class="icon">
-                      <i class="fas fa-file-pdf"></i>
-                    </span>
-                    <span>Paper</span>
-                  </a>
+              <h1 class="title is-1 publication-title">LUVE : Latent-Cascaded Ultra-High-Resolution Video
+                Generation
+                with
+                Dual Frequency Experts</h1>
+              <div class="is-size-5 publication-authors">
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?user=Uhp3JKgAAAAJ&hl=zh-CN">Chen Zhao</a>
+                  <sup>1,2*</sup>,
                 </span>
-                <span class="link-block">
-                  <a href="TODO" class="external-link button is-normal is-rounded is-dark">
-                    <span class="icon">
-                      <i class="ai ai-arxiv"></i>
-                    </span>
-                    <span>arXiv</span>
-                  </a>
+                <span class="author-block">
+                  <a href="https://github.com/unicornanrocinu">Jiawei Chen</a>
+                  <sup>1*</sup>,
                 </span>
-                <!-- Video Link. -->
-                <span class="link-block">
-                  <a href="TODO" class="external-link button is-normal is-rounded is-dark">
-                    <span class="icon">
-                      <i class="fab fa-youtube"></i>
-                    </span>
-                    <span>Video</span>
-                  </a>
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?user=PccL82sAAAAJ&hl=zh-CN&oi=sra">Hongyu Li</a>
+                  <sup>2</sup>,
                 </span>
-                <!-- Code Link. -->
-                <span class="link-block">
-                  <a href="TODO" class="external-link button is-normal is-rounded is-dark">
-                    <span class="icon">
-                      <i class="fab fa-github"></i>
-                    </span>
-                    <span>Code</span>
-                  </a>
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?hl=zh-CN&user=W1ZXjMkAAAAJ">Zhuoliang Kang</a>
+                  <sup>2‡</sup>,
                 </span>
-                <!-- Dataset Link. -->
-                <span class="link-block">
-                  <a href="TODO" class="external-link button is-normal is-rounded is-dark">
-                    <span class="icon">
-                      <i class="far fa-images"></i>
-                    </span>
-                    <span>Data</span>
-                  </a>
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?hl=zh-CN&user=gAG9WLYAAAAJ">Shilin Lu</a>
+                  <sup>3</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://scholar.google.com/citations?hl=zh-CN&user=JXV5yrZxj5MC">Xiaoming Wei</a>
+                  <sup>2</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://cszn.github.io/">Kai Zhang</a>
+                  <sup>1</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://scholar.google.com.hk/citations?user=6CIDtZQAAAAJ&hl=en">Jian Yang</a>
+                  <sup>1</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://tyshiwo.github.io/">Ying Tai</a>
+                  <sup>1†</sup>
+                </span>
               </div>
 
+              <div class="is-size-5 publication-authors">
+                <span class="author-block"><sup>1</sup>Nanjing University,</span>
+                <span class="author-block"><sup>2</sup>Meituan,</span>
+                <span class="author-block"><sup>3</sup>Nanyang Technological University</span>
+              </div>
+
+              <div class="is-size-6 publication-authors">
+                <span class="author-block"><sup>*</sup>Equal contribution, </span>
+                <span class="author-block"><sup>†</sup> Corresponding author, </span>
+                <span class="author-block"><sup>‡</sup> Project leader</span>
+              </div>
+
+              <div class="column has-text-centered">
+                <div class="publication-links">
+                  <!-- PDF Link. -->
+                  <span class="link-block">
+                    <a href="TODO" class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-file-pdf"></i>
+                      </span>
+                      <span>Paper</span>
+                    </a>
+                  </span>
+                  <span class="link-block">
+                    <a href="TODO" class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="ai ai-arxiv"></i>
+                      </span>
+                      <span>arXiv</span>
+                    </a>
+                  </span>
+                  <!-- Video Link. -->
+                  <span class="link-block">
+                    <a href="TODO" class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fab fa-youtube"></i>
+                      </span>
+                      <span>Video</span>
+                    </a>
+                  </span>
+                  <!-- Code Link. -->
+                  <span class="link-block">
+                    <a href="TODO" class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fab fa-github"></i>
+                      </span>
+                      <span>Code</span>
+                    </a>
+                  </span>
+                  <!-- Dataset Link. -->
+                  <span class="link-block">
+                    <a href="TODO" class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="far fa-images"></i>
+                      </span>
+                      <span>Data</span>
+                    </a>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
 
-  <div id="spotlight-video">
-    <div class="container is-max-desktop">
-      <div class="column is-centered has-text-centered">
-        <h2 class="title is-3">
-          <span class="a">LUVE</span>
-          <span class="b">Demo</span>
-        </h2>
-        <div class="publication-video">
-          <video src="./static/videos/demo_LUVE.mp4" poster="./static/images/demo_LUVE.jpg" controls
-            playsinline></video>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <!-- <div class="column is-four-fifths"> -->
-        <div class="column">
-          <div class="content has-text-justified">
-            <div class="column">
-              <img src="./static/images/page.jpg">
-            </div>
+    <div id="spotlight-video">
+      <div class="container is-max-desktop">
+        <div class="column is-centered has-text-centered">
+          <h2 class="title is-3">
+            <span class="a">LUVE</span>
+            <span class="b">Demo</span>
+          </h2>
+          <div class="publication-video">
+            <video src="./static/videos/demo_LUVE.mp4" poster="./static/images/demo_LUVE.jpg" controls
+              playsinline></video>
           </div>
         </div>
       </div>
     </div>
-  </section>
 
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <!-- Abstract. -->
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <!-- <div class="column"> -->
-          <h2 class="title is-3">Abstract</h2>
-          <div class="content has-text-justified">
-            <p>
-              Recent advances in video diffusion models have significantly improved visual quality, yet
-              ultra-high-resolution (UHR) video generation remains a formidable challenge due to the compounded
-              difficulties of motion modeling, semantic planning, and detail synthesis. To address these limitations, we
-              propose <b>LUVE</b>, a <b>L</b>atent-cascaded <b>U</b>HR <b>V</b>ideo generation framework built
-              upon dual frequency <b>E</b>xperts. LUVE employs a three-stage architecture comprising low-resolution
-              motion generation for motion-consistent latent synthesis, video latent upsampling that performs resolution
-              upsampling directly in the latent space to mitigate memory and computational overhead, and high-resolution
-              content refinement that integrates low-frequency and high-frequency experts to jointly enhance semantic
-              coherence and fine-grained detail generation. Extensive experiments demonstrate that our LUVE achieves
-              superior photorealism and content fidelity in UHR video generation, and comprehensive ablation studies
-              further validate the effectiveness of each component.
-            </p>
-          </div>
-        </div>
-      </div>
-      <!--/ Abstract. -->
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <!-- Challenge. -->
-      <div class="columns is-centered has-text-centered">
-        <!-- <div class="column is-four-fifths"> -->
-        <div class="column">
-          <h2 class="title is-3">Challenge</h2>
-          <div class="content has-text-justified">
-            <div class="column">
-              <img src="./static/images/challenge.jpg">
+    <section class="section">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+          <!-- <div class="column is-four-fifths"> -->
+          <div class="column">
+            <div class="content has-text-justified">
+              <div class="column">
+                <img src="./static/images/page.jpg">
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <!--/ Challenge. -->
-    </div>
-  </section>
+    </section>
 
-  <section class="section">
-    <div class="container is-max-desktop">
-      <!-- Method. -->
-      <div class="columns is-centered has-text-centered">
-        <!-- <div class="column is-four-fifths"> -->
-        <div class="column">
-          <h2 class="title is-3">Method</h2>
-          <div class="content has-text-justified">
-            <div class="column">
-              <img src="./static/images/method.jpg">
+
+    <section class="section">
+      <div class="container is-max-desktop">
+        <!-- Abstract. -->
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <!-- <div class="column"> -->
+            <h2 class="title is-3">Abstract</h2>
+            <div class="content has-text-justified">
+              <p>
+                Recent advances in video diffusion models have significantly improved visual quality, yet
+                ultra-high-resolution (UHR) video generation remains a formidable challenge due to the compounded
+                difficulties of motion modeling, semantic planning, and detail synthesis. To address these
+                limitations, we
+                propose <b>LUVE</b>, a <b>L</b>atent-cascaded <b>U</b>HR <b>V</b>ideo generation framework built
+                upon dual frequency <b>E</b>xperts. LUVE employs a three-stage architecture comprising
+                low-resolution
+                motion generation for motion-consistent latent synthesis, video latent upsampling that performs
+                resolution
+                upsampling directly in the latent space to mitigate memory and computational overhead, and
+                high-resolution
+                content refinement that integrates low-frequency and high-frequency experts to jointly enhance
+                semantic
+                coherence and fine-grained detail generation. Extensive experiments demonstrate that our LUVE
+                achieves
+                superior photorealism and content fidelity in UHR video generation, and comprehensive ablation
+                studies
+                further validate the effectiveness of each component.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!--/ Abstract. -->
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container is-max-desktop">
+        <!-- Challenge. -->
+        <div class="columns is-centered has-text-centered">
+          <!-- <div class="column is-four-fifths"> -->
+          <div class="column">
+            <h2 class="title is-3">Challenge</h2>
+            <div class="content has-text-justified">
+              <div class="column">
+                <img src="./static/images/challenge.jpg">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--/ Challenge. -->
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container is-max-desktop">
+        <!-- Method. -->
+        <div class="columns is-centered has-text-centered">
+          <!-- <div class="column is-four-fifths"> -->
+          <div class="column">
+            <h2 class="title is-3">Method</h2>
+            <div class="content has-text-justified">
+              <div class="column">
+                <img src="./static/images/method.jpg">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--/ Method. -->
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+          <div class="column">
+            <h2 class="title is-3">Comparison with SOTA</h2>
+            <div class="content has-text-justified">
+              <div class="compare-row">
+                <img src="./static/images/compare1.jpg">
+                <img src="./static/images/compare2.jpg">
+                <img src="./static/images/compare3.jpg">
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <!--/ Method. -->
-    </div>
-  </section>
+    </section>
 
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column">
-          <h2 class="title is-3">Comparison with SOTA</h2>
-          <div class="content has-text-justified">
-            <div class="compare-row">
-              <img src="./static/images/compare1.jpg">
-              <img src="./static/images/compare2.jpg">
-              <img src="./static/images/compare3.jpg">
+    <section class="video-showcase">
+      <div class="container">
+        <h2 class="section-title">2K Visual Results</h2>
+        <!-- Swiper 主容器 -->
+        <div class="swiper VideoSwiper">
+          <div class="swiper-wrapper">
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/2k1.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/2k1.mp4" type="video/mp4">
+                </video>
+              </div>
             </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/2k2.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/2k2.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/2k3.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/2k3.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/2k4.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/2k4.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/2k5.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/2k5.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/2k6.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/2k6.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
           </div>
+
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-pagination"></div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="video-showcase">
-    <div class="container">
-      <h2 class="section-title">2K Visual Results</h2>
-      <!-- Swiper 主容器 -->
-      <div class="swiper VideoSwiper">
-        <div class="swiper-wrapper">
+    <section class="video-showcase">
+      <div class="container">
+        <h2 class="section-title">4K Visual Results</h2>
+        <!-- Swiper 主容器 -->
+        <div class="swiper VideoSwiper">
+          <div class="swiper-wrapper">
 
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/2k1.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/2k1.mp4" type="video/mp4">
-              </video>
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/4k1.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/4k1.mp4" type="video/mp4">
+                </video>
+              </div>
             </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/4k2.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/4k2.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/4k3.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/4k3.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/4k4.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/4k4.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="video-wrapper">
+                <video poster="./static/images/4k5.jpg" autoplay muted loop playsinline>
+                  <source src="./static/videos/4k5.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
           </div>
 
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/2k2.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/2k2.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/2k3.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/2k3.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/2k4.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/2k4.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/2k5.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/2k5.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/2k6.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/2k6.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-pagination"></div>
         </div>
-
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-pagination"></div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="video-showcase">
-    <div class="container">
-      <h2 class="section-title">4K Visual Results</h2>
-      <!-- Swiper 主容器 -->
-      <div class="swiper VideoSwiper">
-        <div class="swiper-wrapper">
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/4k1.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/4k1.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/4k2.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/4k2.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/4k3.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/4k3.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/4k4.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/4k4.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="video-wrapper">
-              <video poster="./static/images/4k5.jpg" autoplay muted loop playsinline>
-                <source src="./static/videos/4k5.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-pagination"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="BibTeX">
-    <div class="container is-max-desktop content">
-      <h2 class="title">BibTeX</h2>
-      <pre><code>@article{
+    <section class="section" id="BibTeX">
+      <div class="container is-max-desktop content">
+        <h2 class="title">BibTeX</h2>
+        <pre><code>@article{
         TODO
 }</code></pre>
-    </div>
-  </section>
-
-
-  <footer class="footer">
-    <div class="container">
-      <div class="content has-text-centered">
-        <a class="icon-link" href="TODO">
-          <i class="fas fa-file-pdf"></i>
-        </a>
-        <a class="icon-link" href="TODO" class="external-link" disabled>
-          <i class="fab fa-github"></i>
-        </a>
       </div>
-      <div class="columns is-centered">
-        <div class="column is-8">
-          <div class="content">
-            <p>
-              This website template is borrowed from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>,
-              <a href="https://shangchenzhou.com/projects/upscale-a-video/">Upscale-A-Video</a> and <a
-                href="https://nju-pcalab.github.io/projects/STAR/">STAR</a>. Thank You.
-            </p>
+    </section>
+
+
+
+    <footer class="footer">
+      <div class="container">
+        <div class="content has-text-centered">
+          <a class="icon-link" href="TODO">
+            <i class="fas fa-file-pdf"></i>
+          </a>
+          <a class="icon-link" href="TODO" class="external-link" disabled>
+            <i class="fab fa-github"></i>
+          </a>
+        </div>
+        <div class="columns is-centered">
+          <div class="column is-8">
+            <div class="content">
+              <p>
+                This website template is borrowed from <a
+                  href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>,
+                <a href="https://shangchenzhou.com/projects/upscale-a-video/">Upscale-A-Video</a> and <a
+                  href="https://nju-pcalab.github.io/projects/STAR/">STAR</a>. Thank You.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </footer>
+    </footer>
+
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
@@ -458,6 +576,80 @@
       });
     });
   </script>
+
+  <!-- 滑动逻辑 -->
+  <script>
+    // 1. 初始化 Lenis 平滑滚动库
+    const lenis = new Lenis({
+      duration: 1.2,       // 滚动动画持续时间 (秒)，越长越平滑
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // 缓动曲线
+      smooth: true
+    });
+
+    // 绑定 Lenis 到动画帧
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // 2. 自定义逻辑：控制封面与正文的切换
+    let isTransitioning = false; // 防止重复触发
+    const coverSection = document.getElementById('cover-section');
+    const mainWrapper = document.getElementById('main-wrapper');
+
+    // 封装下滑动作
+    function scrollToMain() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+      lenis.scrollTo(mainWrapper, {
+        offset: 0,
+        duration: 1.5, // 可以单独设置切换时的时长，慢一点更高级
+        lock: true,    // 滚动过程中锁定用户操作，防止乱动
+        onComplete: () => { isTransitioning = false; }
+      });
+    }
+
+    // 封装上滑动作
+    function scrollToCover() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+      lenis.scrollTo(coverSection, {
+        offset: 0,
+        duration: 1.5,
+        lock: true,
+        onComplete: () => { isTransitioning = false; }
+      });
+    }
+
+    // 3. 监听滚轮事件 (Wheel Jacking 的现代轻量版)
+    window.addEventListener('wheel', (e) => {
+      // 如果正在动画中，忽略滚轮
+      if (isTransitioning) return;
+
+      const scrollY = window.scrollY; // 当前滚动位置
+      const viewportHeight = window.innerHeight;
+
+      // 逻辑 A: 用户在封面，且向下滚动 -> 去正文
+      if (scrollY < 50 && e.deltaY > 0) {
+        // 阻止默认的小幅滚动，改为整屏滑动
+        e.preventDefault();
+        scrollToMain();
+      }
+
+      // 逻辑 B: 用户在正文顶部，且向上滚动 -> 去封面
+      // scrollY < viewportHeight + 10 是为了容错，确保在正文顶部附近时触发
+      // 这里的逻辑是：如果当前位置在正文顶部（也就是刚好滑过封面），且用户想往上滚
+      else if (scrollY >= viewportHeight - 50 && scrollY <= viewportHeight + 50 && e.deltaY < 0) {
+        e.preventDefault();
+        scrollToCover();
+      }
+
+      // 其他情况（在正文中间滚动）：交给 Lenis 处理默认的平滑滚动
+    }, { passive: false }); // passive: false 允许我们需要时使用 preventDefault
+
+  </script>
+
 </body>
 
 </html>
