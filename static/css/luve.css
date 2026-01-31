@@ -1,15 +1,51 @@
+/* --- Spotlight Video 基础与交互样式 --- */
 #spotlight-video {
     text-align: center;
     transition: all .75s ease-in-out;
+    background-color: transparent;
+    border-radius: 20px;
 }
 
 #spotlight-video:hover {
     background-color: #000;
     padding: 150px 0 150px;
     transform: scale(1.1);
-    margin: 0 0 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
+/* --- 文字颜色切换逻辑 --- */
+#spotlight-video .spotlight-title .color-l,
+#spotlight-video .spotlight-title .color-u,
+#spotlight-video .spotlight-title .color-v,
+#spotlight-video .spotlight-title .color-e {
+    -webkit-text-fill-color: #1d1d1f;
+    transition: all .75s ease-in-out;
+}
+
+#spotlight-video .demo-text {
+    color: #1d1d1f;
+    /* Demo 初始为黑色 */
+    transition: color .75s ease-in-out;
+    margin-left: 10px;
+}
+
+#spotlight-video:hover .spotlight-title .color-l,
+#spotlight-video:hover .spotlight-title .color-u,
+#spotlight-video:hover .spotlight-title .color-v,
+#spotlight-video:hover .spotlight-title .color-e {
+    -webkit-text-fill-color: transparent;
+}
+
+#spotlight-video:hover .demo-text {
+    color: #ffffff;
+}
+
+#spotlight-video .publication-video {
+    transition: all .75s ease-in-out;
+    max-width: 900px;
+    margin: 0 auto;
+}
 
 .compare-row {
     display: flex;
@@ -68,4 +104,157 @@ video {
 
 .swiper-pagination-bullet-active {
     background: #333;
+}
+
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: #1d1d1f;
+    line-height: 1.6;
+}
+
+
+/* 封面副标题 */
+.cover-content p {
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem !important;
+}
+
+/* 正文大标题 (Section Title) */
+.title.is-3 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 2.25rem;
+    letter-spacing: -0.02em;
+    color: #111;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/*标题下方的装饰线*/
+.title.is-3::after {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 3px;
+    background: #0071e3;
+    /* 科技蓝 */
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+.content.has-text-justified p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #424245;
+    font-weight: 400;
+}
+
+b,
+strong {
+    font-weight: 600;
+    color: #000;
+}
+
+.publication-authors a {
+    color: #0071e3 !important;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.publication-authors a:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+.author-block {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+
+.external-link.button {
+    border-radius: 30px !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(10px);
+    /* 玻璃拟态 */
+    color: #1d1d1f !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.external-link.button:hover {
+    background: #1d1d1f !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+.cover-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 8rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+
+    /* 渐变颜色配置：蓝 -> 紫 -> 粉 -> 橙 */
+    background: linear-gradient(120deg,
+            #4facfe 0%,
+            #00f2fe 20%,
+            #7062f5 40%,
+            #ff00f6 60%,
+            #fa709a 80%,
+            #fee140 100%);
+    background-size: 200% auto;
+
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: shine 5s linear infinite;
+    margin-bottom: 0.5rem;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+
+
+/* 标题字体 */
+.color-l {
+    background: linear-gradient(180deg, #007CF0 0%, #00DFD8 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.color-u {
+    background: linear-gradient(180deg, #FF0080 0%, #FF8C00 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.color-v {
+    background: linear-gradient(180deg, #7928CA 0%, #FF0080 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.color-e {
+    background: linear-gradient(180deg, #00B09B 0%, #96C93D 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.publication-title span {
+    font-weight: 800;
 }
