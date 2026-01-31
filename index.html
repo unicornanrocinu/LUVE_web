@@ -28,14 +28,12 @@
 
 
   <style>
-    /* === 核心样式设置 === */
     html,
     body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
-      /* 隐藏系统默认滚动条，由 Lenis 接管，视觉更高级 */
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -44,12 +42,10 @@
       display: none;
     }
 
-    /* 1. 封面区域 */
     #cover-section {
       position: relative;
       width: 100%;
       height: 100vh;
-      /* 绝对占满一屏 */
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -91,17 +87,14 @@
       margin: 0;
     }
 
-    /* 2. 正文区域 */
     #main-wrapper {
       position: relative;
       width: 100%;
       min-height: 100vh;
-      /* 保证正文至少也是一屏 */
       background: white;
       padding-top: 50px;
     }
 
-    /* 简单的箭头动画 */
     .scroll-hint {
       position: absolute;
       bottom: 30px;
@@ -129,18 +122,15 @@
   <!-- === 封面 === -->
   <section id="cover-section">
     <video id="bg-video" autoplay muted loop playsinline>
-      <!-- 替换你的视频路径 -->
       <source src="./static/videos/squeeze_page_long.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
-
     <div class="cover-content">
       <h1 class="cover-title">LUVE</h1>
       <p style="font-size: 1.5rem; margin-top: 10px;">Latent-Cascaded Ultra-High-Resolution Video Generation with Dual
         Frequency Experts</p>
     </div>
 
-    <!-- 点击箭头也可以触发下滑 -->
     <div class="scroll-hint" onclick="scrollToMain()">
       <i class="fas fa-chevron-down fa-3x" style="color: white;"></i>
     </div>
@@ -536,7 +526,6 @@
         </div>
       </div>
     </footer>
-
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -578,75 +567,93 @@
   </script>
 
   <!-- 滑动逻辑 -->
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+
   <script>
-    // 1. 初始化 Lenis 平滑滚动库
+    // 1. 初始化 Lenis
     const lenis = new Lenis({
-      duration: 1.2,       // 滚动动画持续时间 (秒)，越长越平滑
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // 缓动曲线
-      smooth: true
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smooth: true,
+      touchByTouch: true
     });
 
-    // 绑定 Lenis 到动画帧
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
 
-    // 2. 自定义逻辑：控制封面与正文的切换
-    let isTransitioning = false; // 防止重复触发
+    let isTransitioning = false;
     const coverSection = document.getElementById('cover-section');
     const mainWrapper = document.getElementById('main-wrapper');
 
-    // 封装下滑动作
-    function scrollToMain() {
+    function safeScrollTo(target) {
       if (isTransitioning) return;
       isTransitioning = true;
-      lenis.scrollTo(mainWrapper, {
-        offset: 0,
-        duration: 1.5, // 可以单独设置切换时的时长，慢一点更高级
-        lock: true,    // 滚动过程中锁定用户操作，防止乱动
-        onComplete: () => { isTransitioning = false; }
+
+      lenis.scrollTo(target, {
+        duration: 1.2,
+        lock: true, // 滚动时锁定，防止干扰
+        force: true, // 强制跳转
+        onComplete: () => {
+          setTimeout(() => {
+            isTransitioning = false;
+          }, 100);
+        }
       });
     }
 
-    // 封装上滑动作
-    function scrollToCover() {
-      if (isTransitioning) return;
-      isTransitioning = true;
-      lenis.scrollTo(coverSection, {
-        offset: 0,
-        duration: 1.5,
-        lock: true,
-        onComplete: () => { isTransitioning = false; }
-      });
-    }
-
-    // 3. 监听滚轮事件 (Wheel Jacking 的现代轻量版)
     window.addEventListener('wheel', (e) => {
-      // 如果正在动画中，忽略滚轮
-      if (isTransitioning) return;
-
-      const scrollY = window.scrollY; // 当前滚动位置
-      const viewportHeight = window.innerHeight;
-
-      // 逻辑 A: 用户在封面，且向下滚动 -> 去正文
-      if (scrollY < 50 && e.deltaY > 0) {
-        // 阻止默认的小幅滚动，改为整屏滑动
+      if (isTransitioning) {
         e.preventDefault();
-        scrollToMain();
+        return;
       }
 
-      // 逻辑 B: 用户在正文顶部，且向上滚动 -> 去封面
-      // scrollY < viewportHeight + 10 是为了容错，确保在正文顶部附近时触发
-      // 这里的逻辑是：如果当前位置在正文顶部（也就是刚好滑过封面），且用户想往上滚
-      else if (scrollY >= viewportHeight - 50 && scrollY <= viewportHeight + 50 && e.deltaY < 0) {
+      const scrollY = lenis.scroll;
+      const threshold = 10;
+
+      if (scrollY < 10 && e.deltaY > threshold) {
         e.preventDefault();
-        scrollToCover();
+        safeScrollTo(mainWrapper);
       }
 
-      // 其他情况（在正文中间滚动）：交给 Lenis 处理默认的平滑滚动
-    }, { passive: false }); // passive: false 允许我们需要时使用 preventDefault
+      else if (scrollY > 50 && scrollY < window.innerHeight + 50 && e.deltaY < -threshold) {
+        if (scrollY <= window.innerHeight + 5) {
+          e.preventDefault();
+          safeScrollTo(coverSection);
+        }
+      }
+    }, { passive: false });
+
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isTransitioning) {
+        e.preventDefault();
+        return;
+      }
+
+      const touchEndY = e.touches[0].clientY;
+      const deltaY = touchStartY - touchEndY;
+      const scrollY = lenis.scroll;
+      const touchThreshold = 50;
+
+      if (scrollY < 10 && deltaY > touchThreshold) {
+        safeScrollTo(mainWrapper);
+      }
+
+      else if (scrollY > 50 && scrollY < window.innerHeight + 50 && deltaY < -touchThreshold) {
+        if (scrollY <= window.innerHeight + 5) {
+          safeScrollTo(coverSection);
+        }
+      }
+    }, { passive: false });
+
+    document.querySelector('.scroll-hint')?.addEventListener('click', () => safeScrollTo(mainWrapper));
 
   </script>
 
