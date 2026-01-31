@@ -566,7 +566,6 @@
     });
   </script>
 
-  <!-- 滑动逻辑 -->
   <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
 
   <script>
@@ -578,81 +577,116 @@
       touchByTouch: true
     });
 
+    // 渲染循环
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
     requestAnimationFrame(raf);
 
+    // 解决 GitHub 加载资源导致的高度计算错误
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        lenis.resize();
+      }, 500);
+    });
+
+    // 监听视频加载完成也重新计算高度
+    document.querySelectorAll('video').forEach(video => {
+      video.onloadedmetadata = () => lenis.resize();
+    });
+
     let isTransitioning = false;
     const coverSection = document.getElementById('cover-section');
     const mainWrapper = document.getElementById('main-wrapper');
 
+    /**
+     * 安全滚动函数
+     */
     function safeScrollTo(target) {
       if (isTransitioning) return;
       isTransitioning = true;
 
       lenis.scrollTo(target, {
         duration: 1.2,
-        lock: true, // 滚动时锁定，防止干扰
-        force: true, // 强制跳转
+        lock: true,
+        force: true,
         onComplete: () => {
+          // 增加短暂延迟，防止物理惯性立即触发反向滚动
           setTimeout(() => {
             isTransitioning = false;
-          }, 100);
+          }, 200);
         }
       });
     }
 
+    /**
+     * 滚轮事件优化：精准拦截
+     */
     window.addEventListener('wheel', (e) => {
-      if (isTransitioning) {
-        e.preventDefault();
+      const scrollY = lenis.scroll;
+      const vh = window.innerHeight;
+      const threshold = 5; // 触发阈值
+
+      // 状态 1: 在封面最顶端，向下滚 -> 跳到正文
+      if (scrollY <= 5 && e.deltaY > threshold) {
+        if (!isTransitioning) {
+          e.preventDefault();
+          safeScrollTo(mainWrapper);
+        }
         return;
       }
 
-      const scrollY = lenis.scroll;
-      const threshold = 10;
-
-      if (scrollY < 10 && e.deltaY > threshold) {
-        e.preventDefault();
-        safeScrollTo(mainWrapper);
-      }
-
-      else if (scrollY > 50 && scrollY < window.innerHeight + 50 && e.deltaY < -threshold) {
-        if (scrollY <= window.innerHeight + 5) {
+      // 状态 2: 在正文最顶端，向上滚 -> 跳回封面
+      // 判定范围严格限制在 vh 附近，一旦滚下去就不再拦截
+      if (scrollY > 10 && scrollY < vh + 50 && e.deltaY < -threshold) {
+        if (!isTransitioning) {
           e.preventDefault();
           safeScrollTo(coverSection);
         }
+        return;
+      }
+
+      // 状态 3: 如果正在执行动画，拦截所有滚轮操作，防止抖动
+      if (isTransitioning) {
+        e.preventDefault();
       }
     }, { passive: false });
 
+    /**
+     * 触摸事件优化
+     */
     let touchStartY = 0;
     window.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
-      if (isTransitioning) {
-        e.preventDefault();
-        return;
-      }
-
+      const scrollY = lenis.scroll;
+      const vh = window.innerHeight;
       const touchEndY = e.touches[0].clientY;
       const deltaY = touchStartY - touchEndY;
-      const scrollY = lenis.scroll;
-      const touchThreshold = 50;
+      const touchThreshold = 40;
 
-      if (scrollY < 10 && deltaY > touchThreshold) {
-        safeScrollTo(mainWrapper);
+      // 封面拉下
+      if (scrollY <= 5 && deltaY > touchThreshold) {
+        if (!isTransitioning) {
+          e.preventDefault();
+          safeScrollTo(mainWrapper);
+        }
       }
-
-      else if (scrollY > 50 && scrollY < window.innerHeight + 50 && deltaY < -touchThreshold) {
-        if (scrollY <= window.innerHeight + 5) {
+      // 正文拉上
+      else if (scrollY > 10 && scrollY < vh + 50 && deltaY < -touchThreshold) {
+        if (!isTransitioning) {
+          e.preventDefault();
           safeScrollTo(coverSection);
         }
       }
+
+      if (isTransitioning) e.preventDefault();
     }, { passive: false });
 
+    // 箭头点击逻辑
     document.querySelector('.scroll-hint')?.addEventListener('click', () => safeScrollTo(mainWrapper));
 
   </script>
