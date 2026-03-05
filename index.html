@@ -590,9 +590,10 @@
     // 1. 初始化 Lenis
     const lenis = new Lenis({
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // 你的自定义缓动
       smooth: true,
-      touchByTouch: true
+      touchByTouch: true, // 开启针对触摸设备的优化
+      syncTouch: true     // 尝试同步触摸，减少冲突
     });
 
     // 渲染循环
@@ -603,110 +604,76 @@
     requestAnimationFrame(raf);
 
     // 解决 GitHub 加载资源导致的高度计算错误
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        lenis.resize();
-      }, 500);
-    });
-
-    // 监听视频加载完成也重新计算高度
+    window.addEventListener('load', () => lenis.resize());
     document.querySelectorAll('video').forEach(video => {
       video.onloadedmetadata = () => lenis.resize();
     });
 
-    let isTransitioning = false;
-    const coverSection = document.getElementById('cover-section');
     const mainWrapper = document.getElementById('main-wrapper');
+    let isTransitioning = false;
 
-    /**
-     * 安全滚动函数
-     */
-    function safeScrollTo(target) {
+    // 封装滚动函数
+    function scrollToMain() {
       if (isTransitioning) return;
       isTransitioning = true;
 
-      lenis.scrollTo(target, {
-        duration: 1.2,
-        lock: true,
-        force: true,
+      lenis.scrollTo(mainWrapper, {
+        offset: 0,
+        duration: 1.5,
+        lock: true, // 动画期间锁定滚动
         onComplete: () => {
-          // 增加短暂延迟，防止物理惯性立即触发反向滚动
-          setTimeout(() => {
-            isTransitioning = false;
-          }, 200);
+          isTransitioning = false;
         }
       });
     }
 
+    // 箭头点击逻辑
+    document.querySelector('.scroll-hint')?.addEventListener('click', scrollToMain);
+
     /**
-     * 滚轮事件优化：精准拦截
+     * 核心逻辑修改：
+     * 只监听“在封面处向下滚”这一个动作。
+     * 放弃“自动回弹到封面”，因为这符合网页浏览的自然习惯。
      */
     window.addEventListener('wheel', (e) => {
-      const scrollY = lenis.scroll;
-      const vh = window.innerHeight;
-      const threshold = 5; // 触发阈值
-
-      // 状态 1: 在封面最顶端，向下滚 -> 跳到正文
-      if (scrollY <= 5 && e.deltaY > threshold) {
-        if (!isTransitioning) {
-          e.preventDefault();
-          safeScrollTo(mainWrapper);
-        }
-        return;
-      }
-
-      // 状态 2: 在正文最顶端，向上滚 -> 跳回封面
-      // 判定范围严格限制在 vh 附近，一旦滚下去就不再拦截
-      if (scrollY > 10 && scrollY < vh + 50 && e.deltaY < -threshold) {
-        if (!isTransitioning) {
-          e.preventDefault();
-          safeScrollTo(coverSection);
-        }
-        return;
-      }
-
-      // 状态 3: 如果正在执行动画，拦截所有滚轮操作，防止抖动
+      // 如果正在动画中，拦截一切
       if (isTransitioning) {
         e.preventDefault();
+        return;
       }
+
+      // 只有当用户还在视窗顶部 (scrollY < 50) 且 向下滚 (deltaY > 0) 时触发
+      // 阈值设为 50 是为了容错
+      if (window.scrollY < 50 && e.deltaY > 0) {
+        e.preventDefault(); // 阻止默认的微小滚动
+        scrollToMain();     // 触发大幅滚动
+      }
+
+      // 其他情况完全交给 Lenis 处理，不要干预
     }, { passive: false });
 
-    /**
-     * 触摸事件优化
-     */
+
+    // 触摸事件处理 (同样逻辑)
     let touchStartY = 0;
     window.addEventListener('touchstart', (e) => {
       touchStartY = e.touches[0].clientY;
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
-      const scrollY = lenis.scroll;
-      const vh = window.innerHeight;
+      if (isTransitioning) {
+        e.preventDefault();
+        return;
+      }
+
       const touchEndY = e.touches[0].clientY;
-      const deltaY = touchStartY - touchEndY;
-      const touchThreshold = 40;
+      const deltaY = touchStartY - touchEndY; // > 0 表示手指上滑（页面下滚）
 
-      // 封面拉下
-      if (scrollY <= 5 && deltaY > touchThreshold) {
-        if (!isTransitioning) {
-          e.preventDefault();
-          safeScrollTo(mainWrapper);
-        }
+      // 在顶部 && 手指向上滑（试图看下面内容）
+      if (window.scrollY < 50 && deltaY > 30) {
+        e.preventDefault();
+        scrollToMain();
       }
-      // 正文拉上
-      else if (scrollY > 10 && scrollY < vh + 50 && deltaY < -touchThreshold) {
-        if (!isTransitioning) {
-          e.preventDefault();
-          safeScrollTo(coverSection);
-        }
-      }
-
-      if (isTransitioning) e.preventDefault();
     }, { passive: false });
-
-    // 箭头点击逻辑
-    document.querySelector('.scroll-hint')?.addEventListener('click', () => safeScrollTo(mainWrapper));
-
   </script>
 
 </body>
