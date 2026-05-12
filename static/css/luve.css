@@ -258,3 +258,10 @@ strong {
 .publication-title span {
     font-weight: 800;
 }
+
+@media screen and (min-width: 1024px) {
+    .container.is-max-desktop {
+        max-width: 1080px !important;
+        /* 从 960px 改为 1080px */
+    }
+}
